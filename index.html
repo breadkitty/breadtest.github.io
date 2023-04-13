@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+      #result {
+        position: relative;
+      }
+      .msg-out {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="chat-window">
+      <header>Chat</header>
+      <div id="result">
+
+      </div>
+      <input id="userInput" type="text" name="text-input">
+    </div>
+
+    <script>
+
+      const socket = new WebSocket('ws://localhost:3000');
+      const userInput = document.getElementById('userInput');
+      const result = document.getElementById('result');
+      result.style.maxWidth = '200px';
+
+      userInput.addEventListener('keyup', (e) => {
+        if (e.keyCode === 13) {
+          const text = userInput.value;
+          userInput.value = '';
+
+          setTimeout(() => {
+            socket.send(text);
+          }, 1000);
+
+        }
+
+      });
+
+      socket.addEventListener('message', ({ data }) => {
+        const obj = JSON.parse(data);
+        const div = document.createElement('div');
+        const span = document.createElement('span');
+
+        if(obj.who === 'sender') {
+          div.classList.add('msg-out');
+        } else if(obj.who === 'receiver') {
+          div.classList.add('msg-in');
+        }
+
+        span.textContent = obj.text;
+        div.appendChild(span);
+
+        result.appendChild(div);
+        
+      });
+
+
+    </script>
+  </body>
+</html>
